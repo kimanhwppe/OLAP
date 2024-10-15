@@ -1,0 +1,22 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 17
+VisualStudioVersion = 17.9.34701.34
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{C9674DCB-5085-4A16-B785-4C70DD1589BD}") = "SSIS_BikeSales", "SSIS_BikeSales\SSIS_BikeSales.dtproj", "{AC69EFD7-2B63-4ED0-978E-4269948675BA}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Development|Default = Development|Default
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{AC69EFD7-2B63-4ED0-978E-4269948675BA}.Development|Default.ActiveCfg = Development
+		{AC69EFD7-2B63-4ED0-978E-4269948675BA}.Development|Default.Build.0 = Development
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B64D88AB-7F66-4231-97A1-A0E1728DC756}
+	EndGlobalSection
+EndGlobal

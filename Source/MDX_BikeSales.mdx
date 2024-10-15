@@ -1,0 +1,156 @@
+﻿// 1. Thống kê tổng số sản phẩm thuộc thể loại “Bikes”
+SELECT NON EMPTY {[Measures].[Order Quantity] } ON COLUMNS,
+{[Dim Sub Category].[Product Category].&[Bikes]} on ROWS
+From [Bike Sales];
+
+// 2. Thống kê số lượng bán được của từng sản phẩm qua các năm
+SELECT NON EMPTY {[Dim Time].[Year].Children} ON COLUMNS,
+NON EMPTY {[Dim Product].[Product].Children} ON ROWS
+FROM [Bike Sales]
+WHERE [Measures].[Fact Count];
+
+// 3. Thống kê doanh thu trên từng quốc gia của khách hàng trong tháng 8 năm 2015
+SELECT 
+    NON EMPTY { [Measures].[Revenue] } ON COLUMNS, 
+    NON EMPTY { 
+        ([Dim State].[Country].[Country].ALLMEMBERS * 
+        [Dim Time].[Year].[Year].ALLMEMBERS * 
+        [Dim Time].[Month].[Month].ALLMEMBERS ) 
+    }  ON ROWS 
+FROM 
+    ( 
+        SELECT ( { [Dim Time].[DateOrder].[Month].&[2015]&[August] } ) ON COLUMNS 
+        FROM [Bike Sales]
+    ) 
+WHERE 
+    ( [Dim Time].[DateOrder].[Month].&[2015]&[August] );
+
+// 4. Thống kê tổng số lượt bán qua từng năm của từng nhóm độ tuổi khách hàng
+SELECT 
+  NON EMPTY {[Dim Age Group].[Age Group].Children} ON COLUMNS,
+  NON EMPTY {[Dim Time].[Year].Children} ON ROWS
+FROM [Bike Sales]
+WHERE 
+  [Measures].[Fact Count];
+
+// 5. Thống kê top 5 bang thuộc nước Pháp có nhiều lượt mua từ khách hàng nhất
+SELECT [Measures].[Fact Count] ON 0,
+  ORDER(
+    TopCount(
+      [Dim State].[Country].&[France] * 
+		[Dim State].[State].Children,
+      5,
+      [Measures].[Fact Count]
+    ),[Measures].[Fact Count], DESC
+  ) ON 1
+FROM [Bike Sales];
+
+// 6. Thống kê danh sách các sản phẩm có trên 1000 lượt bán và tổng số lượng bán trên 50000 sản phẩm
+SELECT 
+  {[Measures].[Fact Count], [Measures].[Order Quantity]} ON 0,
+  {[Dim Product].[Product].Children} ON 1
+FROM 
+( SELECT 
+    ( INTERSECT(
+        FILTER(
+          [Dim Product].[Product].Children, 
+          [Measures].[Fact Count] > 1000
+        ),
+        FILTER(
+          [Dim Product].[Product].Children, 
+          [Measures].[Order Quantity] > 50000
+        ))) ON 0
+  FROM [Bike Sales]);
+
+
+// 7. Thống kê danh sách và số lượng lượt bán của các sản phẩm trừ Water Bottle – 30oz. của các khách hàng là Nữ vào ngày 5 hàng tháng tại 2 bang South Australia và Victoria
+SELECT 
+    NON EMPTY { [Measures].[Fact Count] } ON COLUMNS, 
+    NON EMPTY { 
+        (
+            [Dim State].[State].[State].ALLMEMBERS * 
+            [Dim Product].[Product].[Product].ALLMEMBERS * 
+            [Dim Gender].[Customer Gender].[Customer Gender].ALLMEMBERS * 
+            [Dim Time].[Day].[Day].ALLMEMBERS
+        ) 
+    } ON ROWS 
+FROM 
+    ( 
+        SELECT ( 
+            -{ [Dim Product].[Product].&[Water Bottle - 30 oz.] } 
+        ) ON COLUMNS 
+        FROM 
+        ( 
+            SELECT ( 
+                { [Dim Time].[DateOrder].[Day].&[2015]&[May]&[5] } 
+            ) ON COLUMNS 
+            FROM 
+            ( 
+                SELECT ( 
+                    { [Dim Gender].[Customer Gender].&[F] } 
+                ) ON COLUMNS 
+                FROM [Bike Sales]
+            )
+        )
+    ) 
+WHERE ( [Dim Time].[DateOrder].[Day].&[2015]&[May]&[5] ) ;
+
+
+
+// 8. Thống kê top 3 danh mục phụ có lợi nhuận lớn nhất.
+SELECT 
+  [Measures].[Profit] ON 0,
+  NON EMPTY 
+    TopCount( 
+		[Dim Sub Category].[Sub Category].CHILDREN,
+      3,
+      [Measures].[Profit]
+  ) ON 1
+FROM [Bike Sales];
+
+// 9. Thống kê 3 tháng trong mỗi năm có nhiều lượt mua hàng nhất, tính tổng doanh thu của các tháng.
+SELECT 
+  NON EMPTY {[Measures].[Revenue]} ON COLUMNS,
+  NON EMPTY 
+    Generate(
+      [Dim Time].[DateOrder].[Year].MEMBERS,
+      TopCount(
+        Descendants([Dim Time].[DateOrder].CURRENTMEMBER,
+ [Dim Time].[DateOrder].[Month]),
+        3,
+        [Measures].[Revenue]
+      )
+    ) ON ROWS
+FROM [Bike Sales];
+
+// 10. Thống kê số lượng sản phẩm trên từng nhóm tuổi và giới tính.
+SELECT 
+  NON EMPTY { 
+	[Dim Gender].[Customer Gender].[Customer Gender].MEMBERS 
+  } ON COLUMNS, 
+  NON EMPTY { 
+    [Dim Age Group].[Age Group].[Age Group].MEMBERS 
+  } ON ROWS
+FROM [Bike Sales] 
+WHERE ([Measures].[Order Quantity]);
+
+
+
+---------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
